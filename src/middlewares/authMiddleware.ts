@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-const authenticateToken = (req: Request, res: Response, next: NextFunction): void  => {
+interface AuthenticatedRequest extends Request {
+    user?: string | JwtPayload; // Type based on the decoded token
+}
+
+const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void  => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
