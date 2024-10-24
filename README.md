@@ -42,8 +42,8 @@ Before running the application, ensure you have the following installed:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/charlespcamargo/fda-drug-api.git
-cd fda-drug-api
+git clone https://github.com/charlespcamargo/AdverseDrugReactions.git
+cd AdverseDrugReactions
 ```
 
 ### 2. Install dependencies
@@ -75,16 +75,16 @@ To build and run the application in a Docker container:
 1. Build the Docker image:
 
    ```bash
-   docker build -t fda-drug-api .
+   docker build -t AdverseDrugReactions .
    ```
 
 2. Run the container:
 
    ```bash
-   docker run -p 3000:3000 fda-drug-api
+   docker run -p 3000:3000 AdverseDrugReactions
    ```
 
-The API will be accessible on `http://localhost:3000`.
+The API swagger will be accessible on `http://localhost:3000/docs`.
 
 ---
 
@@ -98,8 +98,8 @@ The API provides the following main endpoints:
   - Request body:
     ```json
     {
-      "username": "your-username",
-      "password": "your-password"
+      "username": "charlespcamargo@gmail.com",
+      "password": "123"
     }
     ```
   - Response:
@@ -170,12 +170,12 @@ Here, you can log in and make authenticated requests directly from the browser.
 
 1. **Build the Docker image**:
    ```bash
-   docker build -t fda-drug-api .
+   docker build -t AdverseDrugReactions .
    ```
 
 2. **Run the container**:
    ```bash
-   docker run -p 3000:3000 fda-drug-api
+   docker run -p 3000:3000 AdverseDrugReactions
    ```
 
 ### Docker Compose

@@ -51,7 +51,7 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at port=${port}. You can see the swagger in http://localhost:${port}/docs`);
 });
 
 
