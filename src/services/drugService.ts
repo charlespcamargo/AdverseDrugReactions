@@ -5,7 +5,7 @@ interface FDAResponse {
   results: Reaction[];
 }
 
-const getAdverseReactions = async (drugName: string, limit: number = 100): Promise<Drug> => {
+const getAdverseReactions = async (drugName: string, limit: number = 200): Promise<Drug> => {
   const baseURL = process.env.FDA_API_URL;
   const query = `count=patient.reaction.reactionmeddrapt.exact&search=patient.drug.openfda.brand_name:"${drugName}"+patient.drug.openfda.generic_name:"${drugName}"`;
   const url = `${baseURL}${query}&limit=${limit}`;

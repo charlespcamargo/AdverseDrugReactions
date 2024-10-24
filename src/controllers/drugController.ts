@@ -1,7 +1,11 @@
+import NodeCache from 'node-cache';
 import { Request, Response } from 'express';
 import { query, validationResult } from 'express-validator';
 import drugService from '../services/drugService';
 import { Drug } from '../models/drugModel';
+
+// Cache with a TTL (Time to Live) of 60 minutes (3600 seconds)
+const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
 
 /**
  * @swagger
@@ -21,7 +25,7 @@ import { Drug } from '../models/drugModel';
  *           type: string
  *       - name: limit
  *         in: query
- *         description: Limit the number of results (default is 100)
+ *         description: Limit the number of results (default is 200)
  *         required: false
  *         schema:
  *           type: integer
@@ -57,7 +61,7 @@ const getAdverseReactions = [
         .trim()
         .notEmpty().withMessage('Drug name is required')
         .isString().withMessage('Drug name must be a string'),
-    
+
     async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -67,13 +71,27 @@ const getAdverseReactions = [
 
         try {
             const { drugName, limit } = req.query;
+            const cacheKey = `drug_${drugName}`;
 
-            const drugResult: Drug = await drugService.getAdverseReactions((drugName as string), Number(limit) || 100);
+            const cachedResult = cache.get(cacheKey);
+            if (cachedResult) {
+                res.status(200).json(cachedResult);
+                console.log("From cache...");
+                return;
+            }
 
-            res.status(200).json({
+            const drugResult: Drug = await drugService.getAdverseReactions((drugName as string), Number(limit) || 200);
+
+            const result = {
                 drug: drugResult.name,
                 reactions: drugResult.reactions,
-            });
+            };
+
+            cache.set(cacheKey, result);
+            
+            console.log("From external api...");
+
+            res.status(200).json(result);
 
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
