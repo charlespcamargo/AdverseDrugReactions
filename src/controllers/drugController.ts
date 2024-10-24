@@ -2,7 +2,8 @@ import NodeCache from 'node-cache';
 import { Request, Response } from 'express';
 import { query, validationResult } from 'express-validator';
 import drugService from '../services/drugService';
-import { Drug } from '../models/drugModel';
+import { Drug } from '../models/Drug';
+import { DrugReaction } from '../models/DrugReaction';
 
 // Cache with a TTL (Time to Live) of 60 minutes (3600 seconds)
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
@@ -37,7 +38,7 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
  *             schema:
  *               type: object
  *               properties:
- *                 drug:
+ *                 drugName:
  *                   type: string
  *                   example: "Vimizim"
  *                 reactions:
@@ -45,10 +46,10 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
  *                   items:
  *                     type: object
  *                     properties:
- *                       reaction:
+ *                       reactionName:
  *                         type: string
  *                         example: "headache"
- *                       count:
+ *                       total:
  *                         type: integer
  *                         example: 10
  *       400:
@@ -82,16 +83,11 @@ const getAdverseReactions = [
 
             const drugResult: Drug = await drugService.getAdverseReactions((drugName as string), Number(limit) || 200);
 
-            const result = {
-                drug: drugResult.name,
-                reactions: drugResult.reactions,
-            };
+            cache.set(cacheKey, drugResult);
 
-            cache.set(cacheKey, result);
-            
             console.log("From external api...");
 
-            res.status(200).json(result);
+            res.status(200).json(drugResult);
 
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
@@ -100,6 +96,7 @@ const getAdverseReactions = [
                     error: 'Not Found',
                 });
             } else {
+                // This is the block that should handle unexpected errors.
                 res.status(500).json({
                     message: 'An unexpected error occurred.',
                     error: error.message || 'Unknown error',

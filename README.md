@@ -31,7 +31,7 @@ This project is a Node.js API that allows users to log in using JWT and query ad
 
 Before running the application, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 16.x or later)
+- [Node.js](https://nodejs.org/) (version 20.x or later)
 - [npm](https://www.npmjs.com/) (usually installed with Node.js)
 - [Docker](https://www.docker.com/get-started) (if using Docker)
 
@@ -116,13 +116,20 @@ The API provides the following main endpoints:
   - Headers: `Authorization: Bearer <jwt-token>`
   - Response:
     ```json
-    [
-      {
-        "reaction": "Headache",
-        "severity": "mild"
-      },
-      ...
-    ]
+    {
+      "drugName": "Vimizim",
+      "reactions": [
+                      {
+                        "reactionName": "Headache",
+                        "total": 229
+                      },
+                      {
+                        "reactionName": "PYREXIA",
+                        "total": 614
+                      },
+                      ...
+                   ]
+    }
     ```
 
 ---

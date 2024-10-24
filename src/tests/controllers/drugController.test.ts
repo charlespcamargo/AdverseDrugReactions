@@ -27,8 +27,8 @@ describe('Drug Controller Tests', () => {
             const mockFDAResponse = {
                 data: {
                     results: [
-                        { reaction: 'headache', count: 10 },
-                        { reaction: 'nausea', count: 5 }
+                        { term: 'headache', count: 10 },
+                        { term: 'nausea', count: 5 }
                     ]
                 }
             };
@@ -42,9 +42,10 @@ describe('Drug Controller Tests', () => {
 
             expect(res.status).toBe(200);
             expect(res.body).toBeInstanceOf(Object);
-            expect(res.body.drug).toBe('Vimizim');
+            expect(res.body.drugName).toBe('Vimizim');
             expect(res.body.reactions).toBeInstanceOf(Array);
-            expect(res.body.reactions[0].reaction).toBe('headache');
+
+            expect(res.body.reactions[0].reactionName).toBe('headache');
         });
 
         it('should return 400 if drugName is missing', async () => {

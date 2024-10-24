@@ -1,8 +1,12 @@
 import axios from 'axios';
-import { Drug, Reaction } from '../models/drugModel';
+import { Drug } from '../models/Drug';
+import { DrugReaction } from '../models/DrugReaction';
 
 interface FDAResponse {
-  results: Reaction[];
+  results: {
+    term: string;
+    count: number;
+  }[];
 }
 
 const getAdverseReactions = async (drugName: string, limit: number = 200): Promise<Drug> => {
@@ -11,12 +15,17 @@ const getAdverseReactions = async (drugName: string, limit: number = 200): Promi
   const url = `${baseURL}${query}&limit=${limit}`;
 
   const response = await axios.get<FDAResponse>(url);
-  const results: Reaction[] = response.data.results;
+  const results = response.data.results;
 
-  return {
-    name: drugName,
-    reactions: results,
-  };
+  const result: Drug = {
+    drugName: drugName,
+    reactions: results.map((item) => ({
+      reactionName: item.term,
+      total: item.count,
+    }))
+  }; 
+
+  return result;
 };
 
 export default {
