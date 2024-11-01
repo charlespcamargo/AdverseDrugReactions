@@ -18,6 +18,6 @@ const router = Router();
  *             schema:
  *               type: array
  */
-router.get('/reactions', authenticateToken, drugController.getAdverseReactions);
+router.get('/reactions', authenticateToken, drugController.getFirstThousandAdverseReactionsByNumberOfOccurrences);
 
 export default router;

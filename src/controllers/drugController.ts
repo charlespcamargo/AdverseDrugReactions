@@ -1,12 +1,7 @@
-import NodeCache from 'node-cache';
 import { Request, Response } from 'express';
 import { query, validationResult } from 'express-validator';
 import drugService from '../services/drugService';
 import { Drug } from '../models/Drug';
-import { DrugReaction } from '../models/DrugReaction';
-
-// Cache with a TTL (Time to Live) of 60 minutes (3600 seconds)
-const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
 
 /**
  * @swagger
@@ -24,9 +19,9 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
  *         required: true
  *         schema:
  *           type: string
- *       - name: limit
+ *       - name: currentPage
  *         in: query
- *         description: Limit the number of results (default is 200)
+ *         description: The current page number (default is 1 - The OpenFDA limit is 1000 - page 100)
  *         required: false
  *         schema:
  *           type: integer
@@ -51,17 +46,22 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
  *                         example: "headache"
  *                       total:
  *                         type: integer
- *                         example: 10
+ *                         example: 1
  *       400:
  *         description: Bad Request - Missing drug name
  *       500:
  *         description: Internal Server Error
  */
-const getAdverseReactions = [
+const getFirstThousandAdverseReactionsByNumberOfOccurrences = [
     query('drugName')
         .trim()
         .notEmpty().withMessage('Drug name is required')
         .isString().withMessage('Drug name must be a string'),
+
+    query('currentPage')
+        .optional()
+        .trim()        
+        .isInt({ gt: 0 }).withMessage('Current page must be a positive integer'),
 
     async (req: Request, res: Response): Promise<void> => {
         const errors = validationResult(req);
@@ -71,21 +71,8 @@ const getAdverseReactions = [
         }
 
         try {
-            const { drugName, limit } = req.query;
-            const cacheKey = `drug_${drugName}`;
-
-            const cachedResult = cache.get(cacheKey);
-            if (cachedResult) {
-                res.status(200).json(cachedResult);
-                console.log("From cache...");
-                return;
-            }
-
-            const drugResult: Drug = await drugService.getAdverseReactions((drugName as string), Number(limit) || 200);
-
-            cache.set(cacheKey, drugResult);
-
-            console.log("From external api...");
+            const { drugName, currentPage, pageSize = 10 } = req.query;
+            const drugResult: Drug = await drugService.getFirstThousandAdverseReactionsByNumberOfOccurrences((drugName as string), Number(currentPage) || 1, Number(pageSize));
 
             res.status(200).json(drugResult);
 
@@ -96,16 +83,22 @@ const getAdverseReactions = [
                     error: 'Not Found',
                 });
             } else {
-                // This is the block that should handle unexpected errors.
                 res.status(500).json({
                     message: 'An unexpected error occurred.',
                     error: error.message || 'Unknown error',
                 });
+            }
+
+            if (error.response) {
+                console.log("\nresponse", `${error.response.status} - ${error.response.statusText}`);
+
+                if (error.response.data && error.response.data.error.message)
+                    console.log("data", `${error.response.data.error.message}`);
             }
         }
     }
 ];
 
 export default {
-    getAdverseReactions,
+    getFirstThousandAdverseReactionsByNumberOfOccurrences,
 };

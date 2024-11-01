@@ -5,6 +5,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import drugRoutes from './routes/drugRoutes';
 import authRoutes from './routes/authRoutes';
 import dotenv from 'dotenv';
+import drugService from './services/drugService';
 
 
 const app = express();
@@ -54,5 +55,8 @@ app.listen(port, () => {
     console.log(`Server running at port=${port}. You can see the swagger in http://localhost:${port}/docs`);
 });
 
+
+
+drugService.updateAdserveReactionsCacheBackground();
 
 export default app;
