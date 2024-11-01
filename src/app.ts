@@ -57,6 +57,7 @@ app.listen(port, () => {
 
 
 
-drugService.updateAdserveReactionsCacheBackground();
+drugService.updateAdverseReactionsCacheBackground();
+drugService.updateFullAdverseReactionsCacheBackground();
 
 export default app;
